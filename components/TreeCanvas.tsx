@@ -14,6 +14,7 @@ import {
   Position,
   NodeProps,
 } from "@xyflow/react";
+import { useEffect } from "react";
 import "@xyflow/react/dist/style.css";
 import type { TreeNode } from "@/lib/types";
 
@@ -133,8 +134,13 @@ export function TreeCanvas({ root, selectedId, onSelectNode }: Props) {
     [initNodes, selectedId]
   );
 
-  const [nodes, , onNodesChange] = useNodesState(nodesWithSelection);
-  const [edges, , onEdgesChange] = useEdgesState(initEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState(nodesWithSelection);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges);
+
+  useEffect(() => {
+    setNodes(nodesWithSelection);
+    setEdges(initEdges);
+  }, [root, selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => {

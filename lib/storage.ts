@@ -23,9 +23,12 @@ export function getTreesByDomain(domain: Domain): SavedTree[] {
 }
 
 export function getTree(id: string): SavedTree | null {
+  // Check localStorage first — user edits override seeds
+  const saved = loadAll().find((t) => t.id === id);
+  if (saved) return saved;
   if (id === "seed-diesel-1") return DIESEL_SEED;
   if (id === "seed-inspection-1") return INSPECTION_SEED;
-  return loadAll().find((t) => t.id === id) ?? null;
+  return null;
 }
 
 export function saveTree(tree: SavedTree) {
