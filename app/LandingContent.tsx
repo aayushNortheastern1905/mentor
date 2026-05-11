@@ -23,7 +23,7 @@ export function LandingContent() {
           <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
             <div className="w-2.5 h-2.5 rounded-sm bg-white" />
           </div>
-          <span className="text-base font-semibold tracking-tight">Mentor</span>
+          <span className="text-base font-semibold tracking-tight">Mentor <span className="text-primary">AI</span></span>
         </div>
         <div className="flex items-center gap-3">
           <ThemeToggle />

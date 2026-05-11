@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mentor — Capture Expert Reasoning",
+  title: "Mentor AI — Capture Expert Reasoning",
   description:
     "Capture how senior experts diagnose problems. Guide the next generation through their reasoning.",
 };
