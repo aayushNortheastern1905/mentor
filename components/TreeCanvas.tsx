@@ -25,9 +25,9 @@ interface NodeData {
 }
 
 const NODE_COLORS = {
-  question: { bg: "#eff6ff", border: "#93c5fd", text: "#1e40af" },
-  check: { bg: "#fffbeb", border: "#fcd34d", text: "#92400e" },
-  conclusion: { bg: "#f0fdf4", border: "#86efac", text: "#14532d" },
+  question: { bg: "#1a1040", border: "#7c3aed", text: "#c4b5fd" },
+  check: { bg: "#1a1530", border: "#6366f1", text: "#a5b4fc" },
+  conclusion: { bg: "#0f1f1a", border: "#10b981", text: "#6ee7b7" },
 };
 
 function MentorNode({ data, selected }: NodeProps) {
@@ -61,7 +61,7 @@ function MentorNode({ data, selected }: NodeProps) {
       >
         {nodeData.nodeType}
       </div>
-      <div style={{ fontSize: 12, lineHeight: 1.4, color: "#1f2937" }}>
+      <div style={{ fontSize: 12, lineHeight: 1.4, color: "#e2e8f0" }}>
         {nodeData.text.length > 120
           ? nodeData.text.slice(0, 117) + "…"
           : nodeData.text}
@@ -100,10 +100,10 @@ function treeToFlow(
       source: node.id,
       target: branch.node.id,
       label: branch.label,
-      labelStyle: { fontSize: 11, fontWeight: 500 },
-      labelBgStyle: { fill: "#fff", fillOpacity: 0.85 },
+      labelStyle: { fontSize: 11, fontWeight: 500, fill: "#c4b5fd" },
+      labelBgStyle: { fill: "#1a1040", fillOpacity: 0.9 },
       type: "smoothstep",
-      style: { strokeWidth: 1.5, stroke: "#94a3b8" },
+      style: { strokeWidth: 1.5, stroke: "#6366f1" },
     });
     treeToFlow(branch.node, childX, y + ySpacing, nodes, edges, xSpacing, ySpacing);
   });
@@ -158,7 +158,7 @@ export function TreeCanvas({ root, selectedId, onSelectNode }: Props) {
         maxZoom={2}
         proOptions={{ hideAttribution: true }}
       >
-        <Background color="#e2e8f0" gap={20} />
+        <Background color="#2d2060" gap={20} />
         <Controls showInteractive={false} />
         <MiniMap nodeColor={(n) => NODE_COLORS[(n.data as NodeData).nodeType]?.border ?? "#ccc"} />
       </ReactFlow>

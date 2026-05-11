@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { generateText } from "@/lib/gemini";
+import { generateText } from "@/lib/llm";
 import { WHY_PROMPT } from "@/lib/prompts";
 
 const RequestSchema = z.object({

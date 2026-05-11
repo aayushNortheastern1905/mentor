@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams, useParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { DomainSelector } from "@/components/DomainSelector";
 import { WalkthroughCard } from "@/components/WalkthroughCard";
 import { getTree } from "@/lib/storage";
 import { countNodes } from "@/lib/tree";
-import type { Domain, SavedTree, TreeNode, Branch } from "@/lib/types";
+import type { SavedTree, TreeNode, Branch } from "@/lib/types";
 
 interface Step {
   node: TreeNode;
@@ -16,9 +15,7 @@ interface Step {
 
 export function WalkContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const params = useParams();
-  const domain = (searchParams.get("domain") as Domain) ?? "diesel";
   const id = params.id as string;
 
   const [tree, setTree] = useState<SavedTree | null>(null);
@@ -27,12 +24,12 @@ export function WalkContent() {
   useEffect(() => {
     const t = getTree(id);
     if (!t) {
-      router.push(`/apprentice?domain=${domain}`);
+      router.push("/apprentice");
       return;
     }
     setTree(t);
     setHistory([{ node: t.root, pathTexts: [] }]);
-  }, [id, domain, router]);
+  }, [id, router]);
 
   if (!tree || history.length === 0) {
     return (
@@ -65,33 +62,32 @@ export function WalkContent() {
   }
 
   function handleGoDeeper(pathTexts: string[]) {
-    router.push(
-      `/capture?domain=${domain}&context=${encodeURIComponent(pathTexts.join(" → "))}`
-    );
+    router.push(`/capture?context=${encodeURIComponent(pathTexts.join(" → "))}`);
   }
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="border-b border-border/40 px-6 py-4 flex items-center justify-between">
+      <header className="border-b border-border/40 px-8 py-5 flex items-center gap-4">
+        <button
+          onClick={() => router.push("/apprentice")}
+          className="text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </button>
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => router.push(`/apprentice?domain=${domain}`)}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-          <div>
-            <h1 className="text-sm font-semibold">{tree.title}</h1>
-            <p className="text-xs text-muted-foreground">Apprentice walkthrough</p>
+          <div className="w-6 h-6 rounded-md bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center">
+            <div className="w-2 h-2 rounded-sm bg-indigo-400" />
           </div>
+          <span className="text-sm font-semibold tracking-tight text-muted-foreground">
+            {tree.title}
+          </span>
         </div>
-        <DomainSelector value={domain} />
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-10">
         <WalkthroughCard
           node={current.node}
-          domain={domain}
+          domain="inspection"
           stepNumber={history.length}
           totalSteps={totalSteps}
           pathTexts={current.pathTexts}

@@ -1,20 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Mic, MicOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { DomainSelector } from "@/components/DomainSelector";
-import { CAPTURE_PLACEHOLDERS, DOMAIN_LABELS } from "@/lib/prompts";
 import { saveTree } from "@/lib/storage";
-import type { Domain, SavedTree, TreeNode } from "@/lib/types";
+import type { SavedTree, TreeNode } from "@/lib/types";
+
+const PLACEHOLDER = `e.g. When I get a report of a lighting fixture defect the first thing I check is whether it's one fixture or multiple on the same circuit — if it's multiple, the problem is upstream. Then I look at the driver LED indicator if there is one. A solid red usually means thermal shutdown, a flashing red usually means overcurrent. I check the housing temperature with my hand — if I can't hold my hand on it for 3 seconds the driver is cooking itself...`;
 
 export function CaptureContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const domain = (searchParams.get("domain") as Domain) ?? "diesel";
-
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +54,7 @@ export function CaptureContent() {
 
   async function handleSubmit() {
     if (!text.trim() || text.trim().length < 10) {
-      setError("Please describe your diagnostic process (at least a few sentences).");
+      setError("Please describe your diagnostic process — a few sentences is enough.");
       return;
     }
     setError(null);
@@ -66,7 +63,7 @@ export function CaptureContent() {
       const res = await fetch("/api/structure", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ domain, text }),
+        body: JSON.stringify({ domain: "inspection", text }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -75,14 +72,14 @@ export function CaptureContent() {
       const { title, tree } = (await res.json()) as { title: string; tree: TreeNode };
       const saved: SavedTree = {
         id: `tree-${Date.now()}`,
-        domain,
+        domain: "inspection",
         title,
         rootText: text,
         root: tree,
         createdAt: new Date().toISOString(),
       };
       saveTree(saved);
-      router.push(`/capture/tree/${saved.id}?domain=${domain}`);
+      router.push(`/capture/tree/${saved.id}?domain=inspection`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -92,29 +89,31 @@ export function CaptureContent() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="border-b border-border/40 px-6 py-4 flex items-center justify-between">
+      <header className="border-b border-border/40 px-8 py-5 flex items-center gap-4">
+        <button
+          onClick={() => router.push("/")}
+          className="text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </button>
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => router.push(`/?domain=${domain}`)}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-          <div>
-            <h1 className="text-xl font-semibold tracking-tight">Mentor</h1>
-            <p className="text-xs text-muted-foreground">Capture Mode</p>
+          <div className="w-6 h-6 rounded-md bg-primary/20 border border-primary/40 flex items-center justify-center">
+            <div className="w-2 h-2 rounded-sm bg-primary" />
           </div>
+          <span className="text-sm font-semibold tracking-tight text-muted-foreground">
+            Mentor <span className="text-border mx-1">·</span> Build a Playbook
+          </span>
         </div>
-        <DomainSelector value={domain} />
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-12">
         <div className="max-w-2xl w-full space-y-6">
-          <div className="space-y-1">
-            <h2 className="text-2xl font-bold tracking-tight">Tell us how you diagnose this.</h2>
-            <p className="text-muted-foreground text-sm">
-              Talk like you&apos;re explaining it to your apprentice. Don&apos;t worry about
-              structure — just describe what you do and why.
+          <div className="space-y-2">
+            <h2 className="text-3xl font-bold tracking-tight">
+              How do you diagnose this?
+            </h2>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Talk like you&apos;re explaining it to a junior on their first day. Don&apos;t worry about structure — just describe what you do and why. We&apos;ll handle the rest.
             </p>
           </div>
 
@@ -122,9 +121,9 @@ export function CaptureContent() {
             <Textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder={CAPTURE_PLACEHOLDERS[domain]}
+              placeholder={PLACEHOLDER}
               rows={10}
-              className="resize-none text-sm leading-relaxed pr-12"
+              className="resize-none text-sm leading-relaxed pr-12 bg-card border-border/60 focus:border-primary/60"
               disabled={loading}
             />
             <button
@@ -132,7 +131,7 @@ export function CaptureContent() {
               title={listening ? "Stop recording" : "Start voice input"}
               className={`absolute top-3 right-3 p-1.5 rounded-md transition-colors ${
                 listening
-                  ? "text-red-500 bg-red-50 hover:bg-red-100"
+                  ? "text-red-400 bg-red-500/10 hover:bg-red-500/20"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
@@ -143,24 +142,21 @@ export function CaptureContent() {
           {error && <p className="text-sm text-destructive">{error}</p>}
 
           {listening && (
-            <p className="text-sm text-red-500 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              Listening... speak now
+            <p className="text-sm text-red-400 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
+              Listening — speak now
             </p>
           )}
 
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">
-              Domain: <span className="font-medium">{DOMAIN_LABELS[domain]}</span>
-            </p>
+          <div className="flex justify-end">
             <Button onClick={handleSubmit} disabled={loading || !text.trim()} size="lg">
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Reading your reasoning…
+                  Structuring your reasoning…
                 </>
               ) : (
-                "Structure my reasoning →"
+                "Build the playbook →"
               )}
             </Button>
           </div>

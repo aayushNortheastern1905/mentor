@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { generateJSON } from "@/lib/gemini";
+import { generateJSON } from "@/lib/llm";
 import { STRUCTURE_PROMPT } from "@/lib/prompts";
 import type { TreeNode } from "@/lib/types";
 

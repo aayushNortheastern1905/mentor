@@ -1,16 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Clock, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { DomainSelector } from "@/components/DomainSelector";
 import { getTreesByDomain } from "@/lib/storage";
 import { countNodes } from "@/lib/tree";
-import { DOMAIN_LABELS } from "@/lib/prompts";
-import type { Domain, SavedTree } from "@/lib/types";
+import type { SavedTree } from "@/lib/types";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -22,38 +20,37 @@ function formatDate(iso: string) {
 
 export function ApprenticeContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const domain = (searchParams.get("domain") as Domain) ?? "diesel";
   const [trees, setTrees] = useState<SavedTree[]>([]);
 
   useEffect(() => {
-    setTrees(getTreesByDomain(domain));
-  }, [domain]);
+    setTrees(getTreesByDomain("inspection"));
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="border-b border-border/40 px-6 py-4 flex items-center justify-between">
+      <header className="border-b border-border/40 px-8 py-5 flex items-center gap-4">
+        <button
+          onClick={() => router.push("/")}
+          className="text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </button>
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => router.push(`/?domain=${domain}`)}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-          <div>
-            <h1 className="text-xl font-semibold tracking-tight">Mentor</h1>
-            <p className="text-xs text-muted-foreground">Apprentice Mode</p>
+          <div className="w-6 h-6 rounded-md bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center">
+            <div className="w-2 h-2 rounded-sm bg-indigo-400" />
           </div>
+          <span className="text-sm font-semibold tracking-tight text-muted-foreground">
+            Mentor <span className="text-border mx-1">·</span> Run a Playbook
+          </span>
         </div>
-        <DomainSelector value={domain} />
       </header>
 
       <main className="flex-1 px-6 py-10 max-w-2xl mx-auto w-full">
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Choose a tree to walk</h2>
+            <h2 className="text-2xl font-bold tracking-tight">Choose a playbook</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              {DOMAIN_LABELS[domain]} · {trees.length} diagnostic tree{trees.length !== 1 ? "s" : ""} available
+              {trees.length} playbook{trees.length !== 1 ? "s" : ""} available
             </p>
           </div>
 
@@ -65,17 +62,15 @@ export function ApprenticeContent() {
               return (
                 <Card
                   key={tree.id}
-                  className="hover:border-primary/50 hover:shadow-sm transition-all cursor-pointer"
-                  onClick={() =>
-                    router.push(`/apprentice/walk/${tree.id}?domain=${domain}`)
-                  }
+                  className="hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer border-border/60"
+                  onClick={() => router.push(`/apprentice/walk/${tree.id}?domain=inspection`)}
                 >
                   <CardContent className="flex items-center justify-between py-4">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm">{tree.title}</span>
                         {isSeed && (
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge variant="secondary" className="text-xs bg-primary/10 text-primary border-primary/20">
                             Sample
                           </Badge>
                         )}
@@ -88,7 +83,7 @@ export function ApprenticeContent() {
                         <span>{nodeCount} steps</span>
                       </div>
                     </div>
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" className="border-border/60 hover:border-primary/60 hover:text-primary">
                       <Play className="w-3.5 h-3.5 mr-1.5" />
                       Start
                     </Button>
