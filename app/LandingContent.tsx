@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { BookOpen, Play } from "lucide-react";
+import { BookOpen, Play, ListChecks } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 function GithubIcon() {
@@ -62,7 +62,7 @@ export function LandingContent() {
           </div>
 
           {/* Mode cards — equal height with pinned CTAs */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <button
               onClick={() => router.push("/capture?domain=inspection")}
               className="group text-left rounded-2xl border border-white/8 bg-white/4 p-6 hover:border-primary/50 hover:bg-primary/8 transition-all flex flex-col gap-4"
@@ -96,6 +96,24 @@ export function LandingContent() {
               </div>
               <span className="inline-flex items-center gap-1.5 text-sm font-medium text-indigo-400 mt-auto">
                 Start running →
+              </span>
+            </button>
+
+            <button
+              onClick={() => router.push("/bom")}
+              className="group text-left rounded-2xl border border-white/8 bg-white/4 p-6 hover:border-emerald-400/50 hover:bg-emerald-500/8 transition-all flex flex-col gap-4"
+            >
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center group-hover:bg-emerald-500/30 transition-colors shrink-0">
+                <ListChecks className="w-5 h-5 text-emerald-400" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-base text-foreground">Generate a BOM</h3>
+                <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">
+                  Describe any equipment and get a structured Bill of Materials — components, part numbers, failure notes.
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-400 mt-auto">
+                Generate →
               </span>
             </button>
           </div>

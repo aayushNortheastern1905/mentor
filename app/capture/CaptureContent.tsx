@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Mic, MicOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,10 +12,21 @@ const PLACEHOLDER = `e.g. When I get a report of a lighting fixture defect the f
 
 export function CaptureContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromBOM = searchParams.get("from") === "bom";
+
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [listening, setListening] = useState(false);
+
+  useEffect(() => {
+    const prefill = localStorage.getItem("mentor:capture-prefill");
+    if (prefill) {
+      setText(prefill);
+      localStorage.removeItem("mentor:capture-prefill");
+    }
+  }, []);
 
   function toggleMic() {
     if (typeof window === "undefined") return;
@@ -116,6 +127,13 @@ export function CaptureContent() {
               Talk like you&apos;re explaining it to a junior on their first day. Don&apos;t worry about structure — just describe what you do and why. We&apos;ll handle the rest.
             </p>
           </div>
+
+          {fromBOM && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-emerald-500/20 bg-emerald-500/8 text-xs text-emerald-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+              Pre-filled from your BOM — edit or add your own reasoning, then hit build.
+            </div>
+          )}
 
           <div className="relative">
             <Textarea
